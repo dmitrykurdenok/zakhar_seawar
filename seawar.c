@@ -6,19 +6,89 @@
 
 #define EMPTY_CELL ' '
 
+#define clearScreen() system("cls")
+
 char map_comp[M][N + 1];
 char map_user[M][N + 1];
 
+#define DEFAULT_STATE 0
+#define START_MENU 1
+#define GAME_SESSION 2
+
+int program_state = DEFAULT_STATE;
+
+void printMaps();
+void printMapLegend();
+void printCommandList();
+void startMenu();
+void initMaps();
+
 void printMaps()
 {
-    system("cls");
+    clearScreen();
     printf("  computer      user   \n");
     printf(" ABCDEFGHIJ  ABCDEFGHIJ\n");
     for (int i = 0; i < M; ++i)
         printf("%d%s %d%s\n", i, map_comp[i], i, map_user[i]);
 }
 
-int main()
+void printMapLegend()
+{
+    printf("\nMap legend:\n");
+    // TODO: describe map legend
+}
+
+void printCommandList()
+{
+    printf("\nCommand list:\n");
+    switch (program_state)
+    {
+    case START_MENU:
+        printf("game - start the game\n");
+        printf("quit - quit from the program\n");
+    }
+}
+
+void startMenu()
+{
+    program_state = START_MENU;
+
+    clearScreen();
+    printf("START MENU\n");
+    printMapLegend();
+    printCommandList();
+
+    printf("\n");
+    char buf[32];
+    while (1)
+    {
+        printf("> ");
+        fgets(buf, 32, stdin);
+        if (strcmp(buf, "game\n") == 0)
+        {
+            gameSession();
+            break;
+        }
+        else if (strcmp(buf, "quit\n") == 0)
+        {
+            printf("You have quit from the program!\n");
+            exit(0);
+        }
+    }
+}
+
+void gameSession()
+{
+    program_state = GAME_SESSION;
+
+    clearScreen();
+    printf("The game begins!");
+    scanf("%*c");
+    printf("The game ends!");
+    startMenu();
+}
+
+void initMaps()
 {
     for (int i = 0; i < M; ++i)
     {
@@ -30,6 +100,10 @@ int main()
         map_comp[i][N] = '\0';
         map_user[i][N] = '\0';
     }
-    printMaps();
+}
+
+int main()
+{
+    startMenu();
     return 0;
 }
