@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
+#include <string.h>
 
 #define M 10
 #define N 10
@@ -21,6 +23,7 @@ void printMaps();
 void printMapLegend();
 void printCommandList();
 void startMenu();
+void gameSession();
 void initMaps();
 
 void printMaps()
@@ -82,10 +85,10 @@ void gameSession()
     program_state = GAME_SESSION;
 
     clearScreen();
-    printf("The game begins!");
+    printf("You have launched the game!");
     scanf("%*c");
-    printf("The game ends!");
     startMenu();
+    // TODO: implement the game session
 }
 
 void initMaps()
