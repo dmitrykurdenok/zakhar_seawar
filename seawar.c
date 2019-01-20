@@ -4,6 +4,8 @@
 #define M 10
 #define N 10
 
+#define EMPTY_CELL ' '
+
 char map_comp[M][N + 1];
 char map_user[M][N + 1];
 
@@ -22,8 +24,8 @@ int main()
     {
         for (int j = 0; j < N; ++j)
         {
-            map_comp[i][j] = ' ';
-            map_user[i][j] = ' ';
+            map_comp[i][j] = EMPTY_CELL;
+            map_user[i][j] = EMPTY_CELL;
         }
         map_comp[i][N] = '\0';
         map_user[i][N] = '\0';
