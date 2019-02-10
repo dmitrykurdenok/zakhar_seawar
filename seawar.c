@@ -8,8 +8,8 @@
 
 #define clearScreen() system("cls")
 
-char map_comp[M][N + 1];
-char map_user[M][N + 1];
+char **map_comp = NULL;
+char **map_user = NULL;
 
 #define DEFAULT_STATE 0
 #define START_MENU 1
@@ -23,6 +23,7 @@ void printCommandList();
 void startMenu();
 void gameSession();
 void initMaps();
+void fillUserMap();
 
 void printMaps()
 {
@@ -91,7 +92,13 @@ void gameSession()
     program_state = GAME_SESSION;
 
     clearScreen();
+    fillUserMap();
+
+    clearScreen();
     printf("You have launched the game!");
+
+    printMaps();
+
     scanf("%*c");
     startMenu();
     // TODO: implement the game session
@@ -99,8 +106,12 @@ void gameSession()
 
 void initMaps()
 {
+    map_comp = (char**)malloc(M * sizeof(char*));
+    map_user = (char**)malloc(M * sizeof(char*));
     for (int i = 0; i < M; ++i)
     {
+        map_comp[i] = (char*)malloc((N + 1) * sizeof(char));
+        map_user[i] = (char*)malloc((N + 1) * sizeof(char));
         for (int j = 0; j < N; ++j)
         {
             map_comp[i][j] = EMPTY_CELL;
@@ -113,20 +124,78 @@ void initMaps()
 
 int parseCoordinates(char *buf, int *i, int *j)
 {
-    if (strlen(buf) != 2)
+    if (strlen(buf) != 3)
         return 1;
     if (buf[0] < 'A' || buf[0] > 'J')
         return 2;
     if (buf[1] < '0' || buf[1] > '9')
         return 3;
-    *i = buf[0] - 'A';
-    *j = buf[1] - '0';
+    *j = buf[0] - 'A';
+    *i = buf[1] - '0';
     return 0;
+}
+
+int isCoordOnMap(int i, int j)
+{
+    return 0 <= i && i < M && 0 <= j && j < N;
+}
+
+int isCellOutOrEmpty(char **map, int i, int j)
+{
+    return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
+}
+
+int isCellAvailible(char **map, int i, int j)
+{
+    return isCellOutOrEmpty(map, i - 1, j - 1) &&
+           isCellOutOrEmpty(map, i - 1, j) &&
+           isCellOutOrEmpty(map, i - 1, j + 1) &&
+           isCellOutOrEmpty(map, i, j - 1) &&
+           isCoordOnMap(i, j) && map[i][j] == EMPTY_CELL &&
+           isCellOutOrEmpty(map, i, j + 1) &&
+           isCellOutOrEmpty(map, i + 1, j - 1) &&
+           isCellOutOrEmpty(map, i + 1, j) &&
+           isCellOutOrEmpty(map, i + 1, j + 1);
+           
+}
+
+int isShipCoordAvailible(char **map, int i1, int j1, int i2, int j2, int size)
+{
+    if (i1 != i2 && j1 != j2 || abs(i1 - i2) != size - 1 && abs(j1 - j2) != size - 1)
+        return 0;
+
+    int result = 1;
+
+    if (i1 == i2)
+    {
+        if (j1 < j2)
+            for (int j = j1; j <= j2; ++j)
+                if (!isCellAvailible(map, i1, j))
+                    result = 0;
+        else
+            for (int j = j1; j >= j2; --j)
+                if (!isCellAvailible(map, i1, j))
+                    result = 0;
+    }
+    else
+    {
+        if (i1 < i2)
+            for (int i = i1; i <= i2; ++i)
+                if (!isCellAvailible(map, i, j1))
+                    result = 0;
+        else
+            for (int i = i1; i >= i2; --i)
+                if (!isCellAvailible(map, i, j1))
+                    result = 0;
+    }
+
+    return result;
 }
 
 void putUserShip(int size)
 {
-    printf("Size: %d Coordinates:", size);
+    printMaps();
+    printf("Size: %d Coordinates:\n", size);
     char buf[64];
     int i1, j1;
     int i2, j2;
@@ -146,7 +215,9 @@ void putUserShip(int size)
         }
         while (parseCoordinates(buf, &i2, &j2) != 0);
     }
-    while (i1 != i2 && j1 != j2 || abs(i1 - i2) != size && abs(j1 - j2) != size);
+    while (!isShipCoordAvailible(map_user, i1, j1, i2, j2, size));
+
+
 
     if (i1 == i2)
     {
@@ -170,6 +241,7 @@ void putUserShip(int size)
 
 void fillUserMap()
 {
+    initMaps();
     printf("Put your ships on the map (print coordinates of ends for every ship)\n");
     for (int i = 0; i < 1; ++i) putUserShip(4);
     for (int i = 0; i < 2; ++i) putUserShip(3);
