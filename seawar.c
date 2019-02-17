@@ -8,6 +8,11 @@
 
 #define clearScreen() system("cls")
 
+struct Point
+{
+    int i, j;
+};
+
 char **map_comp = NULL;
 char **map_user = NULL;
 
@@ -122,7 +127,7 @@ void initMaps()
     }
 }
 
-int parseCoordinates(char *buf, int *i, int *j)
+int parseCoordinates(char *buf, struct Point *p)
 {
     if (strlen(buf) != 3)
         return 1;
@@ -130,8 +135,8 @@ int parseCoordinates(char *buf, int *i, int *j)
         return 2;
     if (buf[1] < '0' || buf[1] > '9')
         return 3;
-    *j = buf[0] - 'A';
-    *i = buf[1] - '0';
+    (*p).j = buf[0] - 'A';
+    (*p).i = buf[1] - '0';
     return 0;
 }
 
@@ -145,8 +150,10 @@ int isCellOutOrEmpty(char **map, int i, int j)
     return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
 }
 
-int isCellAvailible(char **map, int i, int j)
+int isCellAvailible(char **map, struct Point p)
 {
+    int i = p.i;
+    int j = p.j;
     return isCellOutOrEmpty(map, i - 1, j - 1) &&
            isCellOutOrEmpty(map, i - 1, j) &&
            isCellOutOrEmpty(map, i - 1, j + 1) &&
@@ -159,34 +166,45 @@ int isCellAvailible(char **map, int i, int j)
            
 }
 
-int isShipCoordAvailible(char **map, int i1, int j1, int i2, int j2, int size)
+int isShipCoordAvailible(char **map, struct Point p1, struct Point p2, int size)
 {
-    if (i1 != i2 && j1 != j2 || abs(i1 - i2) != size - 1 && abs(j1 - j2) != size - 1)
+    if (p1.i != p2.i && p1.j != p2.j ||
+        abs(p1.i - p2.i) != size - 1 &&
+        abs(p1.j - p2.j) != size - 1)
         return 0;
 
     int result = 1;
 
-    if (i1 == i2)
+    struct Point p = p1;
+    if (p1.i == p2.i)
     {
-        if (j1 < j2)
-            for (int j = j1; j <= j2; ++j)
-                if (!isCellAvailible(map, i1, j))
+        if (p1.j < p2.j)
+        {
+            for (; p.j <= p2.j; ++p.j)
+                if (!isCellAvailible(map, p))
                     result = 0;
+        }
         else
-            for (int j = j1; j >= j2; --j)
-                if (!isCellAvailible(map, i1, j))
+        {
+            for (; p.j >= p2.j; --p.j)
+                if (!isCellAvailible(map, p))
                     result = 0;
+        }
     }
     else
     {
-        if (i1 < i2)
-            for (int i = i1; i <= i2; ++i)
-                if (!isCellAvailible(map, i, j1))
+        if (p1.i < p2.i)
+        {
+            for (; p.i <= p2.i; ++p.i)
+                if (!isCellAvailible(map, p))
                     result = 0;
+        }
         else
-            for (int i = i1; i >= i2; --i)
-                if (!isCellAvailible(map, i, j1))
+        {
+            for (; p.i >= p2.i; --p.i)
+                if (!isCellAvailible(map, p))
                     result = 0;
+        }
     }
 
     return result;
@@ -197,8 +215,7 @@ void putUserShip(int size)
     printMaps();
     printf("Size: %d Coordinates:\n", size);
     char buf[64];
-    int i1, j1;
-    int i2, j2;
+    struct Point p1, p2;
     do
     {
         do
@@ -206,36 +223,34 @@ void putUserShip(int size)
             printf("first end > ");
             fgets(buf, 64, stdin);
         }
-        while (parseCoordinates(buf, &i1, &j1) != 0);
+        while (parseCoordinates(buf, &p1) != 0);
 
         do
         {
             printf("second end > ");
             fgets(buf, 64, stdin);
         }
-        while (parseCoordinates(buf, &i2, &j2) != 0);
+        while (parseCoordinates(buf, &p2) != 0);
     }
-    while (!isShipCoordAvailible(map_user, i1, j1, i2, j2, size));
+    while (!isShipCoordAvailible(map_user, p1, p2, size));
 
-
-
-    if (i1 == i2)
+    if (p1.i == p2.i)
     {
-        if (j1 < j2)
-            for (int j = j1; j <= j2; ++j)
-                map_user[i1][j] = SHIP_CELL;
+        if (p1.j < p2.j)
+            for (int j = p1.j; j <= p2.j; ++j)
+                map_user[p1.i][j] = SHIP_CELL;
         else
-            for (int j = j1; j >= j2; --j)
-                map_user[i1][j] = SHIP_CELL;
+            for (int j = p1.j; j >= p2.j; --j)
+                map_user[p1.i][j] = SHIP_CELL;
     }
     else
     {
-        if (i1 < i2)
-            for (int i = i1; i <= i2; ++i)
-                map_user[i][j1] = SHIP_CELL;
+        if (p1.i < p2.i)
+            for (int i = p1.i; i <= p2.i; ++i)
+                map_user[i][p1.j] = SHIP_CELL;
         else
-            for (int i = i1; i >= i2; --i)
-                map_user[i][j1] = SHIP_CELL;
+            for (int i = p1.i; i >= p2.i; --i)
+                map_user[i][p1.j] = SHIP_CELL;
     }
 }
 
