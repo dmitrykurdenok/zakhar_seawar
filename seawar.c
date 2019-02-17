@@ -31,19 +31,29 @@ void initMaps();
 void fillUserMap();
 void fillCompMap();
 
+#define EMPTY_CELL '\''
+#define MISS_CELL '*'
+#define HIT_CELL 'X'
+#define SHIP_CELL 'O'
+
 void printMaps()
 {
     clearScreen();
     printf("  computer      user   \n");
     printf(" ABCDEFGHIJ  ABCDEFGHIJ\n");
     for (int i = 0; i < M; ++i)
-        printf("%d%s %d%s\n", i, map_comp[i], i, map_user[i]);
+    {
+        printf("%d", i);
+        for (int j = 0; j < N; ++j)
+        {
+            if (map_comp[i][j] == SHIP_CELL)
+                printf("%c", EMPTY_CELL);
+            else
+                printf("%c", map_comp[i][j]);
+        }
+        printf(" %d%s\n", i, map_user[i]);
+    }
 }
-
-#define EMPTY_CELL '\''
-#define MISS_CELL '*'
-#define HIT_CELL 'X'
-#define SHIP_CELL 'O'
 
 void printMapLegend()
 {
@@ -102,6 +112,8 @@ void gameSession()
     clearScreen();
     fillUserMap();
     fillCompMap();
+    
+    printMaps();
 
     clearScreen();
     printf("You have launched the game!");
