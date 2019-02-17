@@ -29,6 +29,7 @@ void startMenu();
 void gameSession();
 void initMaps();
 void fillUserMap();
+void fillCompMap();
 
 void printMaps()
 {
@@ -96,8 +97,11 @@ void gameSession()
 {
     program_state = GAME_SESSION;
 
+    initMaps();
+
     clearScreen();
     fillUserMap();
+    fillCompMap();
 
     clearScreen();
     printf("You have launched the game!");
@@ -254,14 +258,62 @@ void putUserShip(int size)
     }
 }
 
+void putCompShip(int size)
+{
+    char buf[64];
+    struct Point p1, p2;
+    do
+    {
+        p1.i = rand() % M;
+        p1.j = rand() % N;
+        if (rand()%2)
+        {
+            p2.i = p1.i;
+            p2.j = p2.j + size - 1;
+        }
+        else
+        {
+            p2.i = p1.i + size - 1;
+            p2.j = p1.j;
+        }
+    }
+    while (!isShipCoordAvailible(map_comp, p1, p2, size));
+
+    if (p1.i == p2.i)
+    {
+        if (p1.j < p2.j)
+            for (int j = p1.j; j <= p2.j; ++j)
+                map_comp[p1.i][j] = SHIP_CELL;
+        else
+            for (int j = p1.j; j >= p2.j; --j)
+                map_comp[p1.i][j] = SHIP_CELL;
+    }
+    else
+    {
+        if (p1.i < p2.i)
+            for (int i = p1.i; i <= p2.i; ++i)
+                map_comp[i][p1.j] = SHIP_CELL;
+        else
+            for (int i = p1.i; i >= p2.i; --i)
+                map_comp[i][p1.j] = SHIP_CELL;
+    }
+}
+
 void fillUserMap()
 {
-    initMaps();
     printf("Put your ships on the map (print coordinates of ends for every ship)\n");
     for (int i = 0; i < 1; ++i) putUserShip(4);
     for (int i = 0; i < 2; ++i) putUserShip(3);
     for (int i = 0; i < 3; ++i) putUserShip(2);
     for (int i = 0; i < 4; ++i) putUserShip(1);
+}
+
+void fillCompMap()
+{
+    for (int i = 0; i < 1; ++i) putCompShip(4);
+    for (int i = 0; i < 2; ++i) putCompShip(3);
+    for (int i = 0; i < 3; ++i) putCompShip(2);
+    for (int i = 0; i < 4; ++i) putCompShip(1);
 }
 
 int main()
