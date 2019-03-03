@@ -30,6 +30,7 @@ void gameSession();
 void initMaps();
 void fillUserMap();
 void fillCompMap();
+int parseCoordinates();
 
 #define EMPTY_CELL '\''
 #define MISS_CELL '*'
@@ -103,6 +104,41 @@ void startMenu()
     }
 }
 
+int isCellStroken(char **map, struct Point p)
+{
+    return map[p.i][p.j] == MISS_CELL || map[p.i][p.j] == HIT_CELL;
+}
+
+void userMove()
+{
+    char buf[64];
+    struct Point p;
+    do
+    {
+        printf("your strike > ");
+        fgets(buf, 64, stdin);
+    }
+    while (parseCoordinates(buf, &p) != 0 || isCellStroken(map_comp, p));
+
+    // SHIP -> HIT
+    // EMPTY -> MISS
+
+    // if ship was defeated set misses around ship
+}
+
+void compMove()
+{
+    // ...
+}
+int isGameFinished()
+{
+    // ...
+}
+void printResult()
+{
+    // ...
+}
+
 void gameSession()
 {
     program_state = GAME_SESSION;
@@ -112,13 +148,15 @@ void gameSession()
     clearScreen();
     fillUserMap();
     fillCompMap();
-    
-    printMaps();
 
-    clearScreen();
-    printf("You have launched the game!");
+    while (!isGameFinished())
+    {
+        printMaps();
+        userMove();
+        compMove();
+    }
 
-    printMaps();
+    printResult();
 
     scanf("%*c");
     startMenu();
