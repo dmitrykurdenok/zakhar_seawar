@@ -104,9 +104,118 @@ void startMenu()
     }
 }
 
+int isCoordOnMap(int i, int j)
+{
+    return 0 <= i && i < M && 0 <= j && j < N;
+}
+
+int isCellOutOrEmpty(char **map, int i, int j)
+{
+    return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
+}
+
 int isCellStroken(char **map, struct Point p)
 {
-    return map[p.i][p.j] == MISS_CELL || map[p.i][p.j] == HIT_CELL;
+    return isCoordOnMap(p.i, p.j) && (map[p.i][p.j] == MISS_CELL || map[p.i][p.j] == HIT_CELL);
+}
+
+int isCellShip(char **map, int i, int j)
+{
+    return isCoordOnMap(i, j) && (map[i][j] == SHIP_CELL || map[i][j] == HIT_CELL);
+}
+
+void findShip(char **map, struct Point p, struct Point *p1, struct Point *p2)
+{
+    if (isCellShip(map_comp, p.i, p.j - 1) || isCellShip(map_comp, p.i, p.j + 1))
+    {
+        *p1 = p;
+        while (isCellShip(map_comp, p1->i, p1->j - 1))
+            --p1->j;
+            
+        *p2 = p;
+        while (isCellShip(map_comp, p2->i, p2->j + 1))
+            ++p2->j;
+    }
+    else
+    {
+        *p1 = p;
+        while (isCellShip(map_comp, p1->i - 1, p1->j))
+            --p1->i;
+            
+        *p2 = p;
+        while (isCellShip(map_comp, p2->i + 1, p2->j))
+            ++p2->i;
+    }
+}
+
+void swapInts(int *x, int *y)
+{
+    int t = *x;
+    *x = *y;
+    *y = t;
+}
+
+int isShipDefeated(char **map, struct Point p1, struct Point p2)
+{
+    if (p1.i == p2.i)
+    {
+        int i = p1.i;
+        if (p1.j > p2.j)
+            swapInts(&p1.j, &p2.j);
+        for (int j = p1.j; j <= p2.j; ++j)
+            if (map[i][j] == SHIP_CELL)
+                return 0;
+    }
+    else
+    {
+        if (p1.i > p2.i)
+            swapInts(&p1.i, &p2.i);
+        int j = p1.j;
+        for (int i = p1.i; i <= p2.i; ++i)
+            if (map[i][j] == SHIP_CELL)
+                return 0;
+    }
+    return 1;
+}
+
+void roundDefeatedShip(char **map, struct Point p1, struct Point p2)
+{
+    if (p1.i == p2.i)
+    {
+        int i = p1.i;
+        if (p1.j > p2.j)
+            swapInts(&p1.j, &p2.j);
+
+        if (isCoordOnMap(p1.i, p1.j - 1))
+            map[p1.i][p1.j - 1] = MISS_CELL;
+        if (isCoordOnMap(p2.i, p2.j + 1))
+            map[p2.i][p2.j + 1] = MISS_CELL;
+
+        for (int j = p1.j - 1; j <= p2.j + 1; ++j)
+            if (isCoordOnMap(i - 1, j))
+                map[i - 1][j] = MISS_CELL;
+        for (int j = p1.j - 1; j <= p2.j + 1; ++j)
+            if (isCoordOnMap(i + 1, j))
+                map[i + 1][j] = MISS_CELL;
+    }
+    else
+    {
+        if (p1.i > p2.i)
+            swapInts(&p1.i, &p2.i);
+        int j = p1.j;
+        
+        if (isCoordOnMap(p1.i - 1, p1.j))
+            map[p1.i - 1][p1.j] = MISS_CELL;
+        if (isCoordOnMap(p2.i + 1, p2.j))
+            map[p2.i + 1][p2.j] = MISS_CELL;
+
+        for (int i = p1.i - 1; i <= p2.i + 1; ++i)
+            if (isCoordOnMap(i, j - 1))
+                map[i][j - 1] = MISS_CELL;
+        for (int i = p1.i - 1; i <= p2.i + 1; ++i)
+            if (isCoordOnMap(i, j + 1))
+                map[i][j + 1] = MISS_CELL;
+    }
 }
 
 void userMove()
@@ -120,10 +229,18 @@ void userMove()
     }
     while (parseCoordinates(buf, &p) != 0 || isCellStroken(map_comp, p));
 
-    // SHIP -> HIT
-    // EMPTY -> MISS
+    if (map_comp[p.i][p.j] == EMPTY_CELL)
+        map_comp[p.i][p.j] = MISS_CELL;
+    else if (map_comp[p.i][p.j] == SHIP_CELL)
+    {
+        map_comp[p.i][p.j] = HIT_CELL;
 
-    // if ship was defeated set misses around ship
+        struct Point p1, p2;
+        findShip(map_comp, p, &p1, &p2);
+
+        if (isShipDefeated(map_comp, p1, p2))
+            roundDefeatedShip(map_comp, p1, p2);
+    }
 }
 
 void compMove()
@@ -132,7 +249,7 @@ void compMove()
 }
 int isGameFinished()
 {
-    // ...
+    return 0; // mute
 }
 void printResult()
 {
@@ -141,6 +258,8 @@ void printResult()
 
 void gameSession()
 {
+    // TODO: implement the game session
+
     program_state = GAME_SESSION;
 
     initMaps();
@@ -160,7 +279,6 @@ void gameSession()
 
     scanf("%*c");
     startMenu();
-    // TODO: implement the game session
 }
 
 void initMaps()
@@ -192,16 +310,6 @@ int parseCoordinates(char *buf, struct Point *p)
     (*p).j = buf[0] - 'A';
     (*p).i = buf[1] - '0';
     return 0;
-}
-
-int isCoordOnMap(int i, int j)
-{
-    return 0 <= i && i < M && 0 <= j && j < N;
-}
-
-int isCellOutOrEmpty(char **map, int i, int j)
-{
-    return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
 }
 
 int isCellAvailible(char **map, struct Point p)
