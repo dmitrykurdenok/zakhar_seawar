@@ -243,13 +243,22 @@ void userMove()
     }
 }
 
+int isFinished(char **map)
+{
+    for(int i = 0; i < M; ++i)
+        for(int j = 0; j < N; ++j)
+            if (map[i][j] == SHIP_CELL)
+                return 0;
+    return 1;
+}
+
 void compMove()
 {
     // ...
 }
 int isGameFinished()
 {
-    return 0; // mute
+    return isFinished(map_user) || isFinished(map_comp);
 }
 void printResult()
 {
