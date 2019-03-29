@@ -47,7 +47,7 @@ void printMaps()
         printf("%d", i);
         for (int j = 0; j < N; ++j)
         {
-            if (map_comp[i][j] == SHIP_CELL)
+           if (map_comp[i][j] == SHIP_CELL)
                 printf("%c", EMPTY_CELL);
             else
                 printf("%c", map_comp[i][j]);
@@ -262,7 +262,11 @@ int isGameFinished()
 }
 void printResult()
 {
-    // ...
+     printMaps();
+    if (isFinished(map_comp))
+        printf("You win!!!");
+    else
+        printf("You lose");
 }
 
 void gameSession()
@@ -285,8 +289,8 @@ void gameSession()
     }
 
     printResult();
-
-    scanf("%*c");
+    char s[3];
+    fgets(s, 2, stdin);
     startMenu();
 }
 
