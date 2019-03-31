@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
+#include <time.h>
 
 #define M 10
 #define N 10
@@ -254,7 +255,27 @@ int isFinished(char **map)
 
 void compMove()
 {
-    // ...
+    char buf[64];
+    struct Point p;
+    do
+    {
+        p.i = rand()%M;
+        p.j = rand()%N;
+    }
+    while (isCellStroken(map_user, p));
+
+    if (map_user[p.i][p.j] == EMPTY_CELL)
+        map_user[p.i][p.j] = MISS_CELL;
+    else if (map_user[p.i][p.j] == SHIP_CELL)
+    {
+        map_user[p.i][p.j] = HIT_CELL;
+
+        struct Point p1, p2;
+        findShip(map_user, p, &p1, &p2);
+
+        if (isShipDefeated(map_user, p1, p2))
+            roundDefeatedShip(map_user, p1, p2);
+    }
 }
 int isGameFinished()
 {
@@ -273,8 +294,6 @@ void printResult()
 
 void gameSession()
 {
-    // TODO: implement the game session
-
     program_state = GAME_SESSION;
 
     initMaps();
@@ -489,6 +508,7 @@ void fillCompMap()
 
 int main()
 {
+    srand(time(NULL));
     startMenu();
     return 0;
 }
