@@ -267,6 +267,8 @@ void printResult()
         printf("You win!");
     else
         printf("You lose!");
+    printf("\nPress any key to continue...\n");
+    scanf("%*c");
 }
 
 void gameSession()
@@ -289,8 +291,6 @@ void gameSession()
     }
 
     printResult();
-    char s[3];
-    fgets(s, 2, stdin);
     startMenu();
 }
 
