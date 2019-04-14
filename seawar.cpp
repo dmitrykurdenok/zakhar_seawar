@@ -31,7 +31,7 @@ void gameSession();
 void initMaps();
 void fillUserMap();
 void fillCompMap();
-int parseCoordinates();
+int parseCoordinates(char *buf, Point *p);
 
 #define EMPTY_CELL '\''
 #define MISS_CELL '*'
@@ -118,7 +118,7 @@ int isCellOutOrEmpty(char **map, int i, int j)
     return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
 }
 
-int isCellStroken(char **map, struct Point p)
+int isCellStroken(char **map, Point p)
 {
     return isCoordOnMap(p.i, p.j) && (map[p.i][p.j] == MISS_CELL || map[p.i][p.j] == HIT_CELL);
 }
@@ -128,7 +128,7 @@ int isCellShip(char **map, int i, int j)
     return isCoordOnMap(i, j) && (map[i][j] == SHIP_CELL || map[i][j] == HIT_CELL);
 }
 
-void findShip(char **map, struct Point p, struct Point *p1, struct Point *p2)
+void findShip(char **map, Point p, Point *p1, Point *p2)
 {
     if (isCellShip(map, p.i, p.j - 1) || isCellShip(map, p.i, p.j + 1))
     {
@@ -159,7 +159,7 @@ void swapInts(int *x, int *y)
     *y = t;
 }
 
-int isShipDefeated(char **map, struct Point p1, struct Point p2)
+int isShipDefeated(char **map, Point p1, Point p2)
 {
     if (p1.i == p2.i)
     {
@@ -182,7 +182,7 @@ int isShipDefeated(char **map, struct Point p1, struct Point p2)
     return 1;
 }
 
-void roundDefeatedShip(char **map, struct Point p1, struct Point p2)
+void roundDefeatedShip(char **map, Point p1, Point p2)
 {
     if (p1.i == p2.i)
     {
@@ -225,7 +225,7 @@ void roundDefeatedShip(char **map, struct Point p1, struct Point p2)
 void userMove()
 {
     char buf[64];
-    struct Point p;
+    Point p;
     do
     {
         printf("your strike > ");
@@ -239,7 +239,7 @@ void userMove()
     {
         map_comp[p.i][p.j] = HIT_CELL;
 
-        struct Point p1, p2;
+        Point p1, p2;
         findShip(map_comp, p, &p1, &p2);
 
         if (isShipDefeated(map_comp, p1, p2))
@@ -259,7 +259,7 @@ int isFinished(char **map)
 void compMove()
 {
     char buf[64];
-    struct Point p;
+    Point p;
     do
     {
         p.i = rand()%M;
@@ -273,7 +273,7 @@ void compMove()
     {
         map_user[p.i][p.j] = HIT_CELL;
 
-        struct Point p1, p2;
+        Point p1, p2;
         findShip(map_user, p, &p1, &p2);
 
         if (isShipDefeated(map_user, p1, p2))
@@ -333,7 +333,7 @@ void initMaps()
     }
 }
 
-int parseCoordinates(char *buf, struct Point *p)
+int parseCoordinates(char *buf, Point *p)
 {
     if (strlen(buf) != 3)
         return 1;
@@ -346,7 +346,7 @@ int parseCoordinates(char *buf, struct Point *p)
     return 0;
 }
 
-int isCellAvailible(char **map, struct Point p)
+int isCellAvailible(char **map, Point p)
 {
     int i = p.i;
     int j = p.j;
@@ -362,7 +362,7 @@ int isCellAvailible(char **map, struct Point p)
            
 }
 
-int isShipCoordAvailible(char **map, struct Point p1, struct Point p2, int size)
+int isShipCoordAvailible(char **map, Point p1, Point p2, int size)
 {
     if (p1.i != p2.i && p1.j != p2.j ||
         abs(p1.i - p2.i) != size - 1 &&
@@ -371,7 +371,7 @@ int isShipCoordAvailible(char **map, struct Point p1, struct Point p2, int size)
 
     int result = 1;
 
-    struct Point p = p1;
+    Point p = p1;
     if (p1.i == p2.i)
     {
         if (p1.j < p2.j)
@@ -411,7 +411,7 @@ void putUserShip(int size)
     printMaps();
     printf("Size: %d Coordinates:\n", size);
     char buf[64];
-    struct Point p1, p2;
+    Point p1, p2;
     do
     {
         do
@@ -452,7 +452,7 @@ void putUserShip(int size)
 
 void putCompShip(int size)
 {
-    struct Point p1, p2;
+    Point p1, p2;
     do
     {
         p1.i = rand() % M;
