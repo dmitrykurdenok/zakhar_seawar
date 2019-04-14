@@ -127,24 +127,24 @@ int isCellShip(char **map, int i, int j)
 
 void findShip(char **map, struct Point p, struct Point *p1, struct Point *p2)
 {
-    if (isCellShip(map_comp, p.i, p.j - 1) || isCellShip(map_comp, p.i, p.j + 1))
+    if (isCellShip(map, p.i, p.j - 1) || isCellShip(map, p.i, p.j + 1))
     {
         *p1 = p;
-        while (isCellShip(map_comp, p1->i, p1->j - 1))
+        while (isCellShip(map, p1->i, p1->j - 1))
             --p1->j;
             
         *p2 = p;
-        while (isCellShip(map_comp, p2->i, p2->j + 1))
+        while (isCellShip(map, p2->i, p2->j + 1))
             ++p2->j;
     }
     else
     {
         *p1 = p;
-        while (isCellShip(map_comp, p1->i - 1, p1->j))
+        while (isCellShip(map, p1->i - 1, p1->j))
             --p1->i;
             
         *p2 = p;
-        while (isCellShip(map_comp, p2->i + 1, p2->j))
+        while (isCellShip(map, p2->i + 1, p2->j))
             ++p2->i;
     }
 }
@@ -450,7 +450,6 @@ void putUserShip(int size)
 
 void putCompShip(int size)
 {
-    char buf[64];
     struct Point p1, p2;
     do
     {
