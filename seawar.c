@@ -79,28 +79,31 @@ void printCommandList()
 
 void startMenu()
 {
-    program_state = START_MENU;
-
-    clearScreen();
-    printf("START MENU\n");
-    printMapLegend();
-    printCommandList();
-
-    printf("\n");
-    char buf[32];
     while (1)
     {
-        printf("> ");
-        fgets(buf, 32, stdin);
-        if (strcmp(buf, "game\n") == 0)
+        program_state = START_MENU;
+
+        clearScreen();
+        printf("START MENU\n");
+        printMapLegend();
+        printCommandList();
+
+        printf("\n");
+        char buf[32];
+        while (1)
         {
-            gameSession();
-            break;
-        }
-        else if (strcmp(buf, "quit\n") == 0)
-        {
-            printf("You have quit from the program!\n");
-            exit(0);
+            printf("> ");
+            fgets(buf, 32, stdin);
+            if (strcmp(buf, "game\n") == 0)
+            {
+                gameSession();
+                break;
+            }
+            else if (strcmp(buf, "quit\n") == 0)
+            {
+                printf("You have quit from the program!\n");
+                exit(0);
+            }
         }
     }
 }
@@ -310,7 +313,6 @@ void gameSession()
     }
 
     printResult();
-    startMenu();
 }
 
 void initMaps()
