@@ -373,8 +373,6 @@ bool isShipCoordAvailible(char **map, Point p1, Point p2, int size)
         abs(p1.j - p2.j) != size - 1)
         return false;
 
-    bool result = true;
-
     Point p = p1;
     if (p1.i == p2.i)
     {
@@ -382,13 +380,13 @@ bool isShipCoordAvailible(char **map, Point p1, Point p2, int size)
         {
             for (; p.j <= p2.j; ++p.j)
                 if (!isCellAvailible(map, p))
-                    result = false;
+                    return false;
         }
         else
         {
             for (; p.j >= p2.j; --p.j)
                 if (!isCellAvailible(map, p))
-                    result = false;
+                    return false;
         }
     }
     else
@@ -397,17 +395,17 @@ bool isShipCoordAvailible(char **map, Point p1, Point p2, int size)
         {
             for (; p.i <= p2.i; ++p.i)
                 if (!isCellAvailible(map, p))
-                    result = false;
+                    return false;
         }
         else
         {
             for (; p.i >= p2.i; --p.i)
                 if (!isCellAvailible(map, p))
-                    result = false;
+                    return false;
         }
     }
 
-    return result;
+    return true;
 }
 
 void putUserShip(int size)
