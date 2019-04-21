@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <conio.h>
-#include <string.h>
+#include <iostream>
+#include <string>
 #include <time.h>
 
 const int M = 10;
@@ -35,7 +33,7 @@ void gameSession();
 void initMaps();
 void fillUserMap();
 void fillCompMap();
-int parseCoordinates(char *buf, Point *p);
+int parseCoordinates(std::string buf, Point *p);
 
 const char EMPTY_CELL = '\'';
 const char MISS_CELL = '*';
@@ -45,39 +43,39 @@ const char SHIP_CELL = 'O';
 void printMaps()
 {
     clearScreen();
-    printf("  computer      user   \n");
-    printf(" ABCDEFGHIJ  ABCDEFGHIJ\n");
+    std::cout << "  computer      user   " << std::endl;
+    std::cout << " ABCDEFGHIJ  ABCDEFGHIJ" << std::endl;
     for (int i = 0; i < M; ++i)
     {
-        printf("%d", i);
+        std::cout << i;
         for (int j = 0; j < N; ++j)
         {
             if (map_comp[i][j] == SHIP_CELL)
-                printf("%c", EMPTY_CELL);
+                std::cout << EMPTY_CELL;
             else
-                printf("%c", map_comp[i][j]);
+                std::cout << map_comp[i][j];
         }
-        printf(" %d%s\n", i, map_user[i]);
+        std::cout << ' ' << i << map_user[i] << std::endl;
     }
 }
 
 void printMapLegend()
 {
-    printf("\nMap legend:\n");
-    printf("%c empty cell\n", EMPTY_CELL);
-    printf("%c miss\n", MISS_CELL);
-    printf("%c hit\n", HIT_CELL);
-    printf("%c ship\n", SHIP_CELL);
+    std::cout << "\nMap legend:\n";
+    std::cout << EMPTY_CELL << " empty cell" << std::endl;
+    std::cout << MISS_CELL << " miss" << std::endl;
+    std::cout << HIT_CELL << " hit" << std::endl;
+    std::cout << SHIP_CELL << " ship" << std::endl;
 }
 
 void printCommandList()
 {
-    printf("\nCommand list:\n");
+    std::cout << "\nCommand list:\n";
     switch (program_state)
     {
     case START_MENU:
-        printf("game - start the game\n");
-        printf("quit - quit from the program\n");
+        std::cout << "game - start the game" << std::endl;
+        std::cout << "quit - quit from the program" << std::endl;
     }
 }
 
@@ -88,24 +86,24 @@ void startMenu()
         program_state = START_MENU;
 
         clearScreen();
-        printf("START MENU\n");
+        std::cout << "START MENU" << std::endl;
         printMapLegend();
         printCommandList();
 
-        printf("\n");
-        char buf[32];
+        std::cout << std::endl;
+        std::string buf;
         while (true)
         {
-            printf("> ");
-            fgets(buf, 32, stdin);
-            if (strcmp(buf, "game\n") == 0)
+            std::cout << "> ";
+            std::getline(std::cin, buf);
+            if (buf == "game")
             {
                 gameSession();
                 break;
             }
-            else if (strcmp(buf, "quit\n") == 0)
+            else if (buf == "quit")
             {
-                printf("You have quit from the program!\n");
+                std::cout << "You have quit from the program!" << std::endl;
                 exit(0);
             }
         }
@@ -228,12 +226,12 @@ void roundDefeatedShip(char **map, Point p1, Point p2)
 
 void userMove()
 {
-    char buf[64];
+    std::string buf;
     Point p;
     do
     {
-        printf("your strike > ");
-        fgets(buf, 64, stdin);
+        std::cout << "your strike > ";
+        std::getline(std::cin, buf);
     }
     while (parseCoordinates(buf, &p) != 0 || isCellStroken(map_comp, p));
 
@@ -262,7 +260,6 @@ bool isFinished(char **map)
 
 void compMove()
 {
-    char buf[64];
     Point p;
     do
     {
@@ -288,15 +285,22 @@ bool isGameFinished()
 {
     return isFinished(map_user) || isFinished(map_comp);
 }
+
+void pressAnyKey()
+{
+    std::string s;
+    std::getline(std::cin, s);
+}
+
 void printResult()
 {
     printMaps();
     if (isFinished(map_comp))
-        printf("You win!");
+        std::cout << "You win!";
     else
-        printf("You lose!");
-    printf("\nPress any key to continue...\n");
-    scanf("%*c");
+        std::cout << "You lose!";
+    std::cout << "\nPress any key to continue...\n";
+    pressAnyKey();
 }
 
 void gameSession()
@@ -337,9 +341,9 @@ void initMaps()
     }
 }
 
-int parseCoordinates(char *buf, Point *p)
+int parseCoordinates(std::string buf, Point *p)
 {
-    if (strlen(buf) != 3)
+    if (buf.length() != 2)
         return 1;
     if (buf[0] < 'A' || buf[0] > 'J')
         return 2;
@@ -411,22 +415,22 @@ bool isShipCoordAvailible(char **map, Point p1, Point p2, int size)
 void putUserShip(int size)
 {
     printMaps();
-    printf("Size: %d Coordinates:\n", size);
-    char buf[64];
+    std::cout << "Size: " << size << " Coordinates:" << std::endl;
+    std::string buf;
     Point p1, p2;
     do
     {
         do
         {
-            printf("first end > ");
-            fgets(buf, 64, stdin);
+            std::cout << "first end > ";
+            std::getline(std::cin, buf);
         }
         while (parseCoordinates(buf, &p1) != 0);
 
         do
         {
-            printf("second end > ");
-            fgets(buf, 64, stdin);
+            std::cout << "second end > ";
+            std::getline(std::cin, buf);
         }
         while (parseCoordinates(buf, &p2) != 0);
     }
@@ -494,7 +498,7 @@ void putCompShip(int size)
 
 void fillUserMap()
 {
-    printf("Put your ships on the map (print coordinates of ends for every ship)\n");
+    std::cout << "Put your ships on the map (print coordinates of ends for every ship)" << std::endl;
     for (int i = 0; i < 1; ++i) putUserShip(4);
     for (int i = 0; i < 2; ++i) putUserShip(3);
     for (int i = 0; i < 3; ++i) putUserShip(2);
