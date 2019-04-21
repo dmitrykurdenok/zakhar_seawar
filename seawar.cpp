@@ -4,24 +4,28 @@
 #include <string.h>
 #include <time.h>
 
-#define M 10
-#define N 10
+const int M = 10;
+const int N = 10;
 
-#define clearScreen() system("cls")
+inline void clearScreen()
+{
+    system("cls");
+}
 
 struct Point
 {
     int i, j;
 };
 
-char **map_comp = NULL;
-char **map_user = NULL;
+char **map_comp = nullptr;
+char **map_user = nullptr;
 
-#define DEFAULT_STATE 0
-#define START_MENU 1
-#define GAME_SESSION 2
-
-int program_state = DEFAULT_STATE;
+enum ProgramState
+{
+    DEFAULT_STATE,
+    START_MENU,
+    GAME_SESSION
+} program_state = DEFAULT_STATE;
 
 void printMaps();
 void printMapLegend();
@@ -33,10 +37,10 @@ void fillUserMap();
 void fillCompMap();
 int parseCoordinates(char *buf, Point *p);
 
-#define EMPTY_CELL '\''
-#define MISS_CELL '*'
-#define HIT_CELL 'X'
-#define SHIP_CELL 'O'
+const char EMPTY_CELL = '\'';
+const char MISS_CELL = '*';
+const char HIT_CELL = 'X';
+const char SHIP_CELL = 'O';
 
 void printMaps()
 {
@@ -79,7 +83,7 @@ void printCommandList()
 
 void startMenu()
 {
-    while (1)
+    while (true)
     {
         program_state = START_MENU;
 
@@ -90,7 +94,7 @@ void startMenu()
 
         printf("\n");
         char buf[32];
-        while (1)
+        while (true)
         {
             printf("> ");
             fgets(buf, 32, stdin);
