@@ -112,22 +112,22 @@ void startMenu()
     }
 }
 
-int isCoordOnMap(int i, int j)
+bool isCoordOnMap(int i, int j)
 {
     return 0 <= i && i < M && 0 <= j && j < N;
 }
 
-int isCellOutOrEmpty(char **map, int i, int j)
+bool isCellOutOrEmpty(char **map, int i, int j)
 {
     return !isCoordOnMap(i, j) || map[i][j] == EMPTY_CELL;
 }
 
-int isCellStroken(char **map, Point p)
+bool isCellStroken(char **map, Point p)
 {
     return isCoordOnMap(p.i, p.j) && (map[p.i][p.j] == MISS_CELL || map[p.i][p.j] == HIT_CELL);
 }
 
-int isCellShip(char **map, int i, int j)
+bool isCellShip(char **map, int i, int j)
 {
     return isCoordOnMap(i, j) && (map[i][j] == SHIP_CELL || map[i][j] == HIT_CELL);
 }
@@ -163,7 +163,7 @@ void swapInts(int *x, int *y)
     *y = t;
 }
 
-int isShipDefeated(char **map, Point p1, Point p2)
+bool isShipDefeated(char **map, Point p1, Point p2)
 {
     if (p1.i == p2.i)
     {
@@ -172,7 +172,7 @@ int isShipDefeated(char **map, Point p1, Point p2)
             swapInts(&p1.j, &p2.j);
         for (int j = p1.j; j <= p2.j; ++j)
             if (map[i][j] == SHIP_CELL)
-                return 0;
+                return false;
     }
     else
     {
@@ -181,9 +181,9 @@ int isShipDefeated(char **map, Point p1, Point p2)
         int j = p1.j;
         for (int i = p1.i; i <= p2.i; ++i)
             if (map[i][j] == SHIP_CELL)
-                return 0;
+                return false;
     }
-    return 1;
+    return true;
 }
 
 void roundDefeatedShip(char **map, Point p1, Point p2)
@@ -251,13 +251,13 @@ void userMove()
     }
 }
 
-int isFinished(char **map)
+bool isFinished(char **map)
 {
     for(int i = 0; i < M; ++i)
         for(int j = 0; j < N; ++j)
             if (map[i][j] == SHIP_CELL)
-                return 0;
-    return 1;
+                return false;
+    return true;
 }
 
 void compMove()
@@ -284,7 +284,7 @@ void compMove()
             roundDefeatedShip(map_user, p1, p2);
     }
 }
-int isGameFinished()
+bool isGameFinished()
 {
     return isFinished(map_user) || isFinished(map_comp);
 }
@@ -350,7 +350,7 @@ int parseCoordinates(char *buf, Point *p)
     return 0;
 }
 
-int isCellAvailible(char **map, Point p)
+bool isCellAvailible(char **map, Point p)
 {
     int i = p.i;
     int j = p.j;
@@ -366,14 +366,14 @@ int isCellAvailible(char **map, Point p)
            
 }
 
-int isShipCoordAvailible(char **map, Point p1, Point p2, int size)
+bool isShipCoordAvailible(char **map, Point p1, Point p2, int size)
 {
     if (p1.i != p2.i && p1.j != p2.j ||
         abs(p1.i - p2.i) != size - 1 &&
         abs(p1.j - p2.j) != size - 1)
-        return 0;
+        return false;
 
-    int result = 1;
+    bool result = true;
 
     Point p = p1;
     if (p1.i == p2.i)
@@ -382,13 +382,13 @@ int isShipCoordAvailible(char **map, Point p1, Point p2, int size)
         {
             for (; p.j <= p2.j; ++p.j)
                 if (!isCellAvailible(map, p))
-                    result = 0;
+                    result = false;
         }
         else
         {
             for (; p.j >= p2.j; --p.j)
                 if (!isCellAvailible(map, p))
-                    result = 0;
+                    result = false;
         }
     }
     else
@@ -397,13 +397,13 @@ int isShipCoordAvailible(char **map, Point p1, Point p2, int size)
         {
             for (; p.i <= p2.i; ++p.i)
                 if (!isCellAvailible(map, p))
-                    result = 0;
+                    result = false;
         }
         else
         {
             for (; p.i >= p2.i; --p.i)
                 if (!isCellAvailible(map, p))
-                    result = 0;
+                    result = false;
         }
     }
 
